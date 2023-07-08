@@ -1,4 +1,5 @@
 using Flurl.Http;
+using Polly.Retry;
 using SpecFlowWithTestRails.Environment;
 using SpecFlowWithTestRails.TestRailIntegration.Resilience;
 
@@ -6,29 +7,22 @@ namespace SpecFlowWithTestRails.TestRailIntegration.Client;
 
 public sealed class TestRailClient : ITestRailClient
 {
-    private readonly RetryPolicyBuilder _retryPolicyBuilder;
+    private readonly AsyncRetryPolicy _policy;
     private readonly EnvironmentSettings _settings;
 
     public TestRailClient(RetryPolicyBuilder retryPolicyBuilder, EnvironmentSettings settings)
     {
-        _retryPolicyBuilder = retryPolicyBuilder;
+        _policy = retryPolicyBuilder.BuildRetryPolicy();
         _settings = settings;
     }
 
-    public async Task<IFlurlResponse> GetAsync(string uri)
-    {
-        var policy = _retryPolicyBuilder.BuildRetryPolicy();
-        return await policy.ExecuteAsync(() => $"{_settings.TestRailBaseUrl}{uri}"
+    public async Task<IFlurlResponse> GetAsync(string uri) =>
+        await _policy.ExecuteAsync(() => $"{_settings.TestRailBaseUrl}{uri}"
             .WithBasicAuth(_settings.TestRailUser, _settings.TestRailPassword)
-            .GetAsync()
-        );
-    }
+            .GetAsync());
 
-    public async Task<IFlurlResponse> PostAsync(string uri, object data)
-    {
-        var policy = _retryPolicyBuilder.BuildRetryPolicy();
-        return await policy.ExecuteAsync(() => $"{_settings.TestRailBaseUrl}{uri}"
+    public async Task<IFlurlResponse> PostAsync(string uri, object data) =>
+        await _policy.ExecuteAsync(() => $"{_settings.TestRailBaseUrl}{uri}"
             .WithBasicAuth(_settings.TestRailUser, _settings.TestRailPassword)
             .PostJsonAsync(data));
-    }
 }
