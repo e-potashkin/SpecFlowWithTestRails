@@ -40,7 +40,7 @@ public class TestRailScenarios
     }
 
     [AfterScenario]
-    public async Task AddTestResult()
+    public async Task AddTestResultAsync()
     {
         if (_environmentSettings.IsDevelopment)
         {
@@ -66,7 +66,7 @@ public class TestRailScenarios
     }
 
     [AfterTestRun]
-    public static async Task PublishTestResult()
+    public static async Task PublishTestResultAsync()
     {
         var caseIds = Results
             .SelectMany(x => x.Where(pair => pair.Key == "case_id")
