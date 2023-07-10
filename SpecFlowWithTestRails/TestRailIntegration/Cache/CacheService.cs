@@ -17,7 +17,7 @@ public sealed class CacheService : ICacheService
         _environmentSettings = environmentSettings;
     }
 
-    public object Get(string key) => Cache.Value.Get(key)!;
+    public static object Get(string key) => Cache.Value.Get(key)!;
 
     public async Task<T?> GetOrCreateAsync<T>(string key, Func<ICacheEntry, Task<T>> create) =>
         await Cache.Value.GetOrCreateAsync(key, create);
@@ -38,9 +38,27 @@ public sealed class CacheService : ICacheService
         var response = await _client.GetAsync($"get_cases/{_environmentSettings.TestRailProjectId}&suite_id={_environmentSettings.TestRailSuiteId}");
         var testCasesResponse = await response.GetJsonAsync<GetTestCasesResponse>();
 
+        var testCases = await GetUntilFinishedAsync(testCasesResponse.Link.Next);
+        testCasesResponse.TestCases.AddRange(testCases);
+
         foreach (var testCase in testCasesResponse.TestCases)
         {
             Cache.Value.Set(testCase.Title, testCase.Id);
         }
+    }
+
+    private async Task<IEnumerable<TestCase>> GetUntilFinishedAsync(string? link)
+    {
+        if (link is null)
+        {
+            return Enumerable.Empty<TestCase>();
+        }
+
+        var response = await _client.GetAsync(link.Replace("/api/v2/", ""));
+        var testCasesResponse = await response.GetJsonAsync<GetTestCasesResponse>();
+
+        await GetUntilFinishedAsync(testCasesResponse.Link.Next);
+
+        return testCasesResponse.TestCases;
     }
 }
