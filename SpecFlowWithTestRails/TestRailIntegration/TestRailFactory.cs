@@ -18,6 +18,11 @@ public sealed class TestRailFactory
 
     public async Task<int> CreateTestRunAsync(IEnumerable caseIds)
     {
+        if (_environmentSettings.IsDevelopment)
+        {
+            return 0;
+        }
+
         var testResult = new Dictionary<string, object>
         {
             ["suite_id"] = _environmentSettings.TestRailSuiteId,

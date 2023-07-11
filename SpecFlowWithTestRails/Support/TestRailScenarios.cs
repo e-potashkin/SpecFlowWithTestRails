@@ -35,6 +35,11 @@ public class TestRailScenarios
     [AfterStep]
     public void AddStep()
     {
+        if (_environmentSettings.IsDevelopment)
+        {
+            return;
+        }
+
         var stepText = _contextProvider.GetStepText();
         _scenarioSteps.AppendLine(stepText);
     }
