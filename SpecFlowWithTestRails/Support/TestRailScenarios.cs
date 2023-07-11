@@ -9,27 +9,27 @@ namespace SpecFlowWithTestRails.Support;
 [Binding]
 public class TestRailScenarios
 {
-    private readonly ContextProvider _contextProvider;
-    private readonly EnvironmentSettings _environmentSettings;
     private readonly CacheService _cacheService;
+    private readonly ContextProvider _contextProvider;
     private static TestRailClient _testRailClient;
     private static TestRailFactory _testRailFactory;
+    private static EnvironmentSettings _environmentSettings;
 
     private readonly StringBuilder _scenarioSteps = new();
     private static readonly List<Dictionary<string, object>> Results = new();
 
     public TestRailScenarios(
-        ContextProvider contextProvider,
-        EnvironmentSettings environmentSettings,
         CacheService cacheService,
+        ContextProvider contextProvider,
         TestRailClient testRailClient,
-        TestRailFactory testRailFactory)
+        TestRailFactory testRailFactory,
+        EnvironmentSettings environmentSettings)
     {
-        _contextProvider = contextProvider;
-        _environmentSettings = environmentSettings;
         _cacheService = cacheService;
+        _contextProvider = contextProvider;
         _testRailClient = testRailClient;
         _testRailFactory = testRailFactory;
+        _environmentSettings = environmentSettings;
     }
 
     [AfterStep]
@@ -75,6 +75,11 @@ public class TestRailScenarios
     [AfterTestRun]
     public static async Task PublishTestResultAsync()
     {
+        if (_environmentSettings.IsDevelopment)
+        {
+            return;
+        }
+
         var caseIds = Results
             .SelectMany(x => x.Where(pair => pair.Key == "case_id")
             .Select(pair => pair.Value));
