@@ -54,7 +54,7 @@ public sealed class TestRailFactory
     public async Task<int> CreateTestCaseAsync(
         int sectionId,
         string testCaseTitle,
-        string? reference,
+        string reference,
         string scenarioSteps)
     {
         var testResult = new Dictionary<string, object>
