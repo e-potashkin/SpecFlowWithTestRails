@@ -57,7 +57,9 @@ public class TestRailScenarios
         var error = _contextProvider.TestError;
         if (error is not null)
         {
+            _scenarioSteps.AppendLine(System.Environment.NewLine);
             _scenarioSteps.AppendLine("Step failed");
+            _scenarioSteps.AppendLine(System.Environment.NewLine);
             _scenarioSteps.AppendLine(error.ToString());
             testResult["case_id"] = testCaseId;
             testResult["status_id"] = "5"; // failed

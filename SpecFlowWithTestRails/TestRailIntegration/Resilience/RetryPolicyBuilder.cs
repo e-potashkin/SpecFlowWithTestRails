@@ -7,7 +7,7 @@ namespace SpecFlowWithTestRails.TestRailIntegration.Resilience;
 
 public class RetryPolicyBuilder
 {
-    public AsyncRetryPolicy BuildRetryPolicy()
+    public static AsyncRetryPolicy BuildRetryPolicy()
     {
         var retryPolicy = Policy
             .Handle<FlurlHttpException>(IsTransientError)

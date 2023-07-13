@@ -10,10 +10,10 @@ public sealed class TestRailClient : ITestRailClient
     private readonly AsyncRetryPolicy _policy;
     private readonly EnvironmentSettings _settings;
 
-    public TestRailClient(RetryPolicyBuilder retryPolicyBuilder, EnvironmentSettings settings)
+    public TestRailClient(EnvironmentSettings settings)
     {
-        _policy = retryPolicyBuilder.BuildRetryPolicy();
         _settings = settings;
+        _policy = RetryPolicyBuilder.BuildRetryPolicy();
     }
 
     public async Task<IFlurlResponse> GetAsync(string uri) =>
